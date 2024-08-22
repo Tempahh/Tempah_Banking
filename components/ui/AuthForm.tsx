@@ -3,11 +3,11 @@
 import Link from 'next/link'
 import Image from 'next/image'
 import React, { useState } from 'react'
-import {z} from 'zod'
 import {useForm} from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { Button } from '@/components/ui/Button'
-import { Input } from '@/components/ui/Input'
+import {z} from 'zod'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
 import {Form,
     FormControl,
     FormDescription,
@@ -15,26 +15,61 @@ import {Form,
     FormItem,
     FormLabel,
     FormMessage,
-} from '@/components/ui/Form'
+} from '@/components/ui/form'
+import CustomInput from './CustomInput'
+import { authformSchema } from '@/lib/utils'
+import { Loader2 } from 'lucide-react'
+import { useRouter } from 'next/navigation'
+import {signUp, signIn} from '@/lib/ServerActions/user.action'
 
-const formSchema = z.object({
-    username: z.string().min(3).max(50,
-    { message: 'Username must be between 3 and 50 characters',}),
-})
+
 
 const AuthForm = ({type}: {type: string}) => {
 
-    const [user, setUser] = useState(null)
+    const router = useRouter();
 
-    const form = useForm<z.infer<typeof formSchema>>({
-        resolver: zodResolver(formSchema),
+    const [user, setUser] = useState(null)
+    const [isLoading, setIsLoading] = useState(false)
+
+    const formschema = authformSchema(type)
+
+    const form = useForm<z.infer<typeof formschema>>({
+        resolver: zodResolver(formschema),
         defaultValues: {
-            username: '',
+            email: '',
+            password: ''
         },
     })
 
-    function onSubmit(data: z.infer<typeof formSchema>) {
-        console.log(data)
+    const onSubmit = async (data: z.infer<typeof formschema>) => {
+        setIsLoading(true)
+        try {
+            console.log(data)
+            //sign up with appwrite
+            if (type === 'signup') {
+                const userData = await signUp(data)
+                // const result = await appwrite.account.create(data.email, data.password)
+                // console.log(result)
+                setUser(userData)
+            }
+
+            //sign in with appwrite
+            if (type === 'signin') {
+                const response = await signIn({
+                    email: data.email,
+                    password: data.password
+                })
+                if(response) router.push('/')
+                // const result = await appwrite.account.createSession(data.email, data.password)
+                // console.log(result)
+            }
+
+        } catch (error) {
+            console.log(error)
+        }
+        finally {
+            setIsLoading(false)
+        }
     }
 
   return (
@@ -75,37 +110,87 @@ const AuthForm = ({type}: {type: string}) => {
             </div>
         ):
         (
-            <>
-                <Form {...form}>
+    <>
+    <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-        <FormField
-          control={form.control}
-          name="email"
-          render={({ field }) => (
-            <div className='form-item'>
-                <FormLabel className='form-label'>
-                    Email
-                </FormLabel>
-                <div className='flex w-full flex-col'>
-                    <FormControl>
-                        <Input
-                            placeholder='Enter your email'
-                            className='input-class'
-                            {...field}
-                            
-                        />
-                    </FormControl>
-                </div>
+        {type === 'signup' && (
+            <>
+            <div className='flex gap-4'>
+            <CustomInput
+                naMe='firstName' control={form.control}
+                label='First Name' placeholder='Enter your first name'
+            />
+            <CustomInput
+                naMe='lastName' control={form.control}
+                label='Last Name' placeholder='Enter your last name'
+            />
             </div>
-          )}
-        />
-        <Button type="submit">Submit</Button>
-      </form>
+            <CustomInput
+                naMe='address' control={form.control}
+                label='Address' placeholder='Enter your address'
+            />
+            <CustomInput 
+                naMe='city' control={form.control}
+                label='City' placeholder='Ex: Lagos'
+            />
+            <div className='flex gap-4'>
+            <CustomInput
+                naMe='state' control={form.control}
+                label='State' placeholder='Ex: Lagos'
+            />
+            <CustomInput
+                naMe='postalcode' control={form.control}
+                label='Postal Code' placeholder='Ex: 100001'
+            />
+            </div>
+            <div className='flex gap-4'>
+            <CustomInput
+                naMe='dateOfBirth' control={form.control}
+                label='Date of Birth' placeholder='yyyy-mm-dd'
+            />
+            <CustomInput
+                naMe='ssn' control={form.control}
+                label='Ssn' placeholder='Ex: 12345678901'
+            />
+            </div>
+            </>
+        )}
+        <CustomInput
+            naMe='email' control={form.control}
+            label='Email' placeholder='Enter your email'
+            />
+        <CustomInput
+            naMe='password' control={form.control}
+            label='Password' placeholder='Enter your password'
+            />
+                <div className='flx flex-col gap-4'>
+                    <Button type="submit"
+                    disabled={isLoading}
+                    className='form-btn'>{
+                        isLoading ? (
+                            <>
+                                <Loader2 size={20}
+                                    className='animate-spin'/> &nbsp;Loading...
+                            </>
+                        ): type === 'signin' ? 'Sign-In' : 'Sign-Up'
+                    }</Button>
+                </div>
+        </form>
     </Form>
+    
+    <footer className='flex justify-center gap-1'>
+        <p className='font-normal text-14 text-gray-600'>
+            {type === 'signin' ? 'New to PressMoney?' : 'Already have an account?'}
+        </p>
+        <Link href={type === 'signin' ? '/signup' : '/signin'}>
+            {type === 'signin' ? 'Sign up' : 'Sign In'}
+        </Link>
+    </footer>
             </>
         )}
     </section>
   )
 }
+
 
 export default AuthForm

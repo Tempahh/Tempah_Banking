@@ -6,6 +6,7 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import path from 'path'
+import Footer from './Footer'
 
 const SideBar = ({user}: SiderbarProps) => {
 
@@ -54,7 +55,10 @@ const SideBar = ({user}: SiderbarProps) => {
                 )
             })}
         </nav>
+
+    <Footer user={user} type='desktop'/>
     </section>
+    
   )
 }
 
