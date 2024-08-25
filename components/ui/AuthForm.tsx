@@ -77,8 +77,6 @@ const AuthForm = ({type}: {type: string}) => {
                 })
 
                 if(response) router.push('/')
-                // const result = await appwrite.account.createSession(data.email, data.password)
-                // console.log(result)
             }
 
         } catch (error) {

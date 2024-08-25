@@ -313,7 +313,7 @@ declare interface createBankAccountProps {
   userId: string;
   accountId: string;
   bankId: string;
-  fundingSourceName: string;
+  fundingSourceUrl: string;
   sharableId: string;
 }
 

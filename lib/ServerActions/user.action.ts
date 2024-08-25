@@ -54,8 +54,9 @@ export const signUp = async ( {password, ...userData }: SignUpParams) => {
             }
         )
 
-        const session = await account.createEmailPasswordSession(email,
-            password);
+        if (!newuser) throw new Error('Error creating user document')
+
+        const session = await account.createEmailPasswordSession(email, password);
 
         cookies().set("appwrite-session", session.secret, {
             path: "/",
@@ -63,7 +64,8 @@ export const signUp = async ( {password, ...userData }: SignUpParams) => {
             sameSite: "strict",
             secure: true,
         });
-        return parseStringify(newuser)
+        return parseStringify(newuser);
+
     } catch (error) {
         console.error('Error:', error)
     }
@@ -125,6 +127,7 @@ export const createLinkToken = async (user: User) => {
             client_name:`${user.firstName} ${user.lastName}`,
             products: ['auth', 'transactions'] as Products[],
             language: 'en',
+            //this part determines what contrys' banks plaid will support
             country_codes: ['US'] as CountryCode[],
         }
         
@@ -140,12 +143,13 @@ export const createLinkToken = async (user: User) => {
 export const createBankAccount = async ({      
 userId,
 bankId,
+accountId,
 accessToken,
-fundingSourceName,
+fundingSourceUrl,
 sharableId
 } : createBankAccountProps) => {
 
-    if (!userId || !bankId || !accessToken || !fundingSourceName || !sharableId) {
+    if (!userId || !bankId || !accessToken || !fundingSourceUrl || !sharableId) {
         console.error('Missing required fields')
         throw new Error('Missing required fields')
     }
@@ -159,14 +163,15 @@ sharableId
             {
                 userId,
                 bankId,
+                accountId,
                 accessToken,
-                fundingSourceName,
+                fundingSourceUrl,
                 sharableId
             })
 
         return parseStringify(bankAccount)
         } catch (error) {
-
+            console.error('Error:', error)
     }
 }
 
@@ -217,7 +222,7 @@ export const exchangePublicToken = async ({publicToken,user} : exchangePublicTok
             bankId: itemId,
             accountId: accountData.account_id,
             accessToken,
-            fundingSourceName,
+            fundingSourceUrl: fundingSourceName,
             sharableId: encryptId(accountData.account_id)
         });
 
