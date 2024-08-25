@@ -21,6 +21,7 @@ import { authformSchema } from '@/lib/utils'
 import { Loader2 } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import {signUp, signIn} from '@/lib/ServerActions/user.action'
+import PlaidLink from './PlaidLink'
 
 
 
@@ -43,14 +44,29 @@ const AuthForm = ({type}: {type: string}) => {
 
     const onSubmit = async (data: z.infer<typeof formschema>) => {
         setIsLoading(true)
+
+        
         try {
-            console.log(data)
+            
             //sign up with appwrite
             if (type === 'signup') {
-                const userData = await signUp(data)
-                // const result = await appwrite.account.create(data.email, data.password)
-                // console.log(result)
-                setUser(userData)
+                //reassign request values for constant typescript variable prescence
+                const userData = {
+                    firstName: data.firstName!,
+                    lastName: data.lastName!,
+                    address1: data.address1!,
+                    city: data.city!,
+                    state: data.state!,
+                    postalCode: data.postalcode!,
+                    dateOfBirth: data.dateOfBirth!,
+                    ssn: data.ssn!,
+                    email: data.email,
+                    password: data.password
+                }
+
+                const newuser = await signUp(userData)
+
+                setUser(newuser)
             }
 
             //sign in with appwrite
@@ -59,6 +75,7 @@ const AuthForm = ({type}: {type: string}) => {
                     email: data.email,
                     password: data.password
                 })
+
                 if(response) router.push('/')
                 // const result = await appwrite.account.createSession(data.email, data.password)
                 // console.log(result)
@@ -104,12 +121,11 @@ const AuthForm = ({type}: {type: string}) => {
                 </h1>
             </div>
         </header>
-        {user ? (
+        {user ? ( 
             <div className='flex flex-col gap-4'>
-                {/**plaidlink */}
+                <PlaidLink user={user} situation_variant='primary'/>
             </div>
-        ):
-        (
+         ): ( 
     <>
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
@@ -126,7 +142,7 @@ const AuthForm = ({type}: {type: string}) => {
             />
             </div>
             <CustomInput
-                naMe='address' control={form.control}
+                naMe='address1' control={form.control}
                 label='Address' placeholder='Enter your address'
             />
             <CustomInput 
@@ -150,7 +166,7 @@ const AuthForm = ({type}: {type: string}) => {
             />
             <CustomInput
                 naMe='ssn' control={form.control}
-                label='Ssn' placeholder='Ex: 12345678901'
+                label='ssn' placeholder='Ex: 12345678901'
             />
             </div>
             </>
@@ -187,7 +203,7 @@ const AuthForm = ({type}: {type: string}) => {
         </Link>
     </footer>
             </>
-        )}
+         )}
     </section>
   )
 }
