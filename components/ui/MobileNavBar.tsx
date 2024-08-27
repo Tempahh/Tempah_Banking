@@ -69,7 +69,6 @@ const MobileNavBar = ({user}: MobileNavProps) => {
                         </SheetClose>
                       )
                   })}
-                  USER
               </nav>
             </SheetClose>
             <Footer user={user} type='mobile'/>

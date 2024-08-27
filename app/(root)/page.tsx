@@ -31,7 +31,7 @@ const Home = async ({searchParams: {id, page}}: SearchParamProps) => {
             <HeaderBox 
                 type='greeting'
                 title='Welcome to the app'
-                user = {loggedIn?.firstName || 'T'}
+                user = {loggedIn?.firstName}
                 subtext= 'Access your bank accounts from the palm of your hands'
             />
             <Totalbalancebox 
