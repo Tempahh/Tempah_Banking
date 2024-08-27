@@ -1,10 +1,9 @@
 🤖 Introduction
-Built with Next.js, Horizon is a financial SaaS platform that connects to multiple bank accounts, displays transactions in real-time, allows users to transfer money to other platform users, and manages their finances altogether.
+Built with Next.js, PressmoneyNau is a financial SaaS platform that connects to multiple bank accounts, displays transactions in real-time, allows users to transfer money to other platform users, and manages their finances altogether.
 
 if you're getting started and need assistance or face any bugs, contact me: plance991@gmail.com or +2348140678421
 
-⚙️ 
-Tech Stack:
+⚙️ Tech Stack:
 Next.js
 TypeScript
 Appwrite
